@@ -21,7 +21,7 @@ class AuthViewModel extends _$AuthViewModel {
     final completer = Completer<User?>();
     final sub = _auth.authStateChanges().listen((user) {
       completer.complete(user);
-    }, onError: (error) => completer.complete(null));
+    }, onError: (error) => completer.completeError(error));
 
     try {
       final User? user = await completer.future;
@@ -34,7 +34,6 @@ class AuthViewModel extends _$AuthViewModel {
   /// Retry loading auth state from Firebase in case of error
   Future<void> retry() async {
     ref.invalidateSelf();
-    await future;
   }
 
   /// Sign in with email and password
