@@ -24,7 +24,12 @@ class AuthViewModel extends _$AuthViewModel {
     }, onError: (error) => completer.completeError(error));
 
     try {
-      final User? user = await completer.future;
+      final User? user = await completer.future.timeout(
+        const Duration(seconds: 10),
+        onTimeout: () => throw TimeoutException(
+          "Could not load athentication state from Firebase",
+        ),
+      );
       return user;
     } finally {
       sub.cancel();
@@ -48,7 +53,7 @@ class AuthViewModel extends _$AuthViewModel {
   }
 
   // Sign up with email and password
-  Future<void> singUp(String email, String password) async {
+  Future<void> signUp(String email, String password) async {
     final cred = await _auth.createUserWithEmailAndPassword(
       email: email,
       password: password,
@@ -69,5 +74,11 @@ class AuthViewModel extends _$AuthViewModel {
     if (prevState != null) {
       state = AsyncData(prevState.copyWith(displayName: name));
     }
+  }
+
+  // Sign out
+  Future<void> signOut() async {
+    await _auth.signOut();
+    state = const AsyncData(null);
   }
 }

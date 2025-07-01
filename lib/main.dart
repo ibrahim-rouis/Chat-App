@@ -12,8 +12,14 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   if (kDebugMode) {
     try {
-      FirebaseFirestore.instance.useFirestoreEmulator("127.0.0.1", 8080);
-      await FirebaseAuth.instance.useAuthEmulator("127.0.0.1", 9099);
+      if (DefaultFirebaseOptions.currentPlatform ==
+          DefaultFirebaseOptions.android) {
+        FirebaseFirestore.instance.useFirestoreEmulator("10.0.2.2", 8080);
+        await FirebaseAuth.instance.useAuthEmulator("10.0.2.2", 9099);
+      } else {
+        FirebaseFirestore.instance.useFirestoreEmulator("127.0.0.1", 8080);
+        await FirebaseAuth.instance.useAuthEmulator("127.0.0.1", 9099);
+      }
     } catch (e) {
       debugPrint("Failed to connect to emulators, reason: $e.");
     }

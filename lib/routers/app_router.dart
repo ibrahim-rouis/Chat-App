@@ -1,5 +1,6 @@
 import 'package:chat_app/features/auth/viewmodels/auth_viewmodel.dart';
 import 'package:chat_app/features/auth/views/sign_in_page.dart';
+import 'package:chat_app/features/auth/views/sign_up_page.dart';
 import 'package:chat_app/features/home/views/home_page.dart';
 import 'package:chat_app/features/home/views/loading_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,23 +15,28 @@ GoRouter router(Ref ref) {
     initialLocation: "/",
     debugLogDiagnostics: true,
     routes: [
-      GoRoute(path: "/", builder: (context, state) => const HomePage()),
+      GoRoute(
+        path: "/",
+        builder: (context, state) => const HomePage(),
+        routes: [],
+        redirect: (context, state) {
+          final user = ref.read(authViewModelProvider);
+          if (user.isLoading && !user.hasValue) {
+            return "/loading";
+          }
+          if (user.hasValue && user.value == null) {
+            return "/signin";
+          }
+
+          return null;
+        },
+      ),
       GoRoute(
         path: "/loading",
         builder: (context, state) => const LoadingPage(),
       ),
       GoRoute(path: "/signin", builder: (context, state) => const SignInPage()),
+      GoRoute(path: "/signup", builder: (context, state) => const SignUpPage()),
     ],
-    redirect: (context, state) {
-      final user = ref.read(authViewModelProvider);
-      if (user.isLoading && !user.hasValue) {
-        return "/loading";
-      }
-      if (user.hasValue && user.value == null) {
-        return "/signin";
-      }
-
-      return null;
-    },
   );
 }

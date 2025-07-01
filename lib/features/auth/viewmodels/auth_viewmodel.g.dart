@@ -6,7 +6,7 @@ part of 'auth_viewmodel.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$authViewModelHash() => r'7ddc6258d9d21586b8576aaf9bbb4665df5d43d6';
+String _$authViewModelHash() => r'48a95276b2b229d4032233860cc3052cac8800d6';
 
 /// See also [AuthViewModel].
 @ProviderFor(AuthViewModel)
