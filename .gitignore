@@ -47,3 +47,5 @@ app.*.map.json
 logs
 *.log
 /emulators_data
+
+/node_modules
