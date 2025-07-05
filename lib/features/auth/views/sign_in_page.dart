@@ -1,6 +1,8 @@
 import 'package:chat_app/components/i_text_form_field.dart';
+import 'package:chat_app/components/logo.dart';
+import 'package:chat_app/components/welcome_message.dart';
 import 'package:chat_app/features/auth/viewmodels/auth_viewmodel.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:chat_app/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -16,7 +18,6 @@ class _SignInPageState extends ConsumerState<SignInPage> {
   final emailFieldController = TextEditingController();
   final passwordFieldController = TextEditingController();
   final formKey = GlobalKey<FormState>();
-  bool loading = false;
 
   @override
   void dispose() {
@@ -27,8 +28,14 @@ class _SignInPageState extends ConsumerState<SignInPage> {
 
   @override
   Widget build(BuildContext context) {
-    final th = Theme.of(context);
-
+    ref.listen(authViewModelProvider, (prev, next) {
+      next.whenOrNull(
+        error: (error, _) {
+          final message = parseError(error);
+          showErrorSnackbar(context, message);
+        },
+      );
+    });
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -40,9 +47,9 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const SizedBox(height: 64),
-                    _buildLogo(th),
+                    const MyLogo(),
                     const SizedBox(height: 16),
-                    _buildWelcomeMessage(th),
+                    const WelcomeMessage(),
                     const SizedBox(height: 32),
                     Expanded(child: SingleChildScrollView(child: _buildForm())),
                   ],
@@ -65,25 +72,6 @@ class _SignInPageState extends ConsumerState<SignInPage> {
     );
   }
 
-  Column _buildWelcomeMessage(ThemeData th) {
-    return Column(
-      children: [
-        Text("Welcome to Chat App", style: th.textTheme.titleLarge),
-        const SizedBox(height: 2),
-        Text(
-          "Chat with your friends and make chat groups.",
-          style: th.textTheme.titleSmall!.copyWith(
-            color: th.colorScheme.secondary,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Icon _buildLogo(ThemeData th) {
-    return Icon(Icons.message, size: 126, color: th.colorScheme.primary);
-  }
-
   Form _buildForm() {
     return Form(
       key: formKey,
@@ -96,7 +84,7 @@ class _SignInPageState extends ConsumerState<SignInPage> {
             const SizedBox(height: 8),
             ITextFormField(
               controller: emailFieldController,
-              validator: _valiatedEmail,
+              validator: valiatedEmail,
             ),
             const SizedBox(height: 16),
             const Text("Password"),
@@ -104,7 +92,7 @@ class _SignInPageState extends ConsumerState<SignInPage> {
             ITextFormField(
               controller: passwordFieldController,
               obscure: true,
-              validator: _validatePassword,
+              validator: validatePassword,
             ),
             const SizedBox(height: 32),
             Row(
@@ -112,7 +100,9 @@ class _SignInPageState extends ConsumerState<SignInPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ElevatedButton(
-                  onPressed: loading ? null : _submitForm,
+                  onPressed: ref.watch(authViewModelProvider).isLoading
+                      ? null
+                      : _submitForm,
                   child: const Padding(
                     padding: EdgeInsets.symmetric(
                       vertical: 8.0,
@@ -129,35 +119,8 @@ class _SignInPageState extends ConsumerState<SignInPage> {
     );
   }
 
-  String? _valiatedEmail(String? email) {
-    if (email == null || email.isEmpty) {
-      return "Email is required";
-    }
-    if (!RegExp(
-      r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+",
-    ).hasMatch(email)) {
-      return "Invalid email address";
-    }
-
-    return null;
-  }
-
-  String? _validatePassword(String? password) {
-    if (password == null || password.isEmpty) {
-      return "Password is required";
-    }
-    if (password.length < 6) {
-      return "Password must be at least 6 characters long";
-    }
-
-    return null;
-  }
-
   Future<void> _submitForm() async {
     if (formKey.currentState!.validate()) {
-      setState(() {
-        loading = true;
-      });
       try {
         await ref
             .read(authViewModelProvider.notifier)
@@ -165,37 +128,9 @@ class _SignInPageState extends ConsumerState<SignInPage> {
         if (mounted) {
           context.replace("/");
         }
-      } on FirebaseAuthException catch (e) {
-        debugPrint("Firebase auth error code: ${e.code}");
-        switch (e.code) {
-          case "user-not-found":
-            _showErrorSnackbar("Email not found");
-            break;
-          case "wrong-password":
-            _showErrorSnackbar("Incorrect Password");
-            break;
-          default:
-            _showErrorSnackbar("Sign in error: ${e.code}");
-        }
-      } catch (_) {
-        _showErrorSnackbar("An unknown error as occured");
-      } finally {
-        setState(() {
-          loading = false;
-        });
+      } catch (e) {
+        debugPrint("Error: $e");
       }
-    }
-  }
-
-  void _showErrorSnackbar(String text) {
-    if (mounted) {
-      final th = Theme.of(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: th.colorScheme.error,
-          content: Text(text, style: TextStyle(color: th.colorScheme.onError)),
-        ),
-      );
     }
   }
 }

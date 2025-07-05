@@ -43,24 +43,42 @@ class AuthViewModel extends _$AuthViewModel {
 
   /// Sign in with email and password
   Future<void> signIn(String email, String password) async {
-    final cred = await _auth.signInWithEmailAndPassword(
-      email: email,
-      password: password,
-    );
-    state = cred.user != null
-        ? AsyncData(UserModel.fromUser(cred.user!))
-        : const AsyncData(null);
+    state = const AsyncLoading();
+    try {
+      final cred = await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      state = cred.user != null
+          ? AsyncData(UserModel.fromUser(cred.user!))
+          : const AsyncData(null);
+    } on FirebaseAuthException catch (e) {
+      state = AsyncValue.error(e, StackTrace.current);
+      rethrow;
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+      rethrow;
+    }
   }
 
   // Sign up with email and password
   Future<void> signUp(String email, String password) async {
-    final cred = await _auth.createUserWithEmailAndPassword(
-      email: email,
-      password: password,
-    );
-    state = cred.user != null
-        ? AsyncData(UserModel.fromUser(cred.user!))
-        : const AsyncData(null);
+    state = const AsyncLoading();
+    try {
+      final cred = await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      state = cred.user != null
+          ? AsyncData(UserModel.fromUser(cred.user!))
+          : const AsyncData(null);
+    } on FirebaseAuthException catch (e) {
+      state = AsyncValue.error(e, StackTrace.current);
+      rethrow;
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+      rethrow;
+    }
   }
 
   // set displayName
@@ -78,7 +96,16 @@ class AuthViewModel extends _$AuthViewModel {
 
   // Sign out
   Future<void> signOut() async {
-    await _auth.signOut();
-    state = const AsyncData(null);
+    state = const AsyncLoading();
+    try {
+      await _auth.signOut();
+      state = const AsyncData(null);
+    } on FirebaseAuthException catch (e) {
+      state = AsyncValue.error(e, StackTrace.current);
+      rethrow;
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+      rethrow;
+    }
   }
 }
