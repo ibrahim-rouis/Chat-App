@@ -9,11 +9,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   if (kDebugMode) {
     try {
-      if (DefaultFirebaseOptions.currentPlatform ==
-          DefaultFirebaseOptions.android) {
+      if (defaultTargetPlatform == TargetPlatform.android) {
         FirebaseFirestore.instance.useFirestoreEmulator("10.0.2.2", 8080);
         await FirebaseAuth.instance.useAuthEmulator("10.0.2.2", 9099);
       } else {
