@@ -12,7 +12,7 @@ class ContactsViewModel extends _$ContactsViewModel {
 
   @override
   Future<List<Contact>> build() async {
-    final user = ref.read(authViewModelProvider).unwrapPrevious().valueOrNull;
+    final user = ref.watch(authViewModelProvider).valueOrNull;
 
     if (user == null) {
       return throw Exception("You are not logged in!");
@@ -20,15 +20,15 @@ class ContactsViewModel extends _$ContactsViewModel {
 
     List<Contact> contacts = <Contact>[];
 
-    final docRef = await _db.collection(_collection).doc(user.uid).get();
+    final doc = await _db.collection(_collection).doc(user.uid).get();
 
-    if (!docRef.exists) {
+    if (!doc.exists) {
       await _db.collection(_collection).doc(user.uid).set({"contacts": []});
       return contacts;
     }
 
     // every document in contacts collection has id of owner uid and a 'contacts' field with a list of contacts uids
-    final contactsUIDs = docRef.data()!["contacts"];
+    final contactsUIDs = doc.data()!["contacts"];
 
     for (final uid in contactsUIDs) {
       final contact = await _getContactInfoByUID(uid);
@@ -43,10 +43,55 @@ class ContactsViewModel extends _$ContactsViewModel {
   }
 
   Future<Contact?> _getContactInfoByUID(String uid) async {
-    final docRef = await _db.collection("users").doc(uid).get();
+    final doc = await _db.collection("users").doc(uid).get();
 
-    if (!docRef.exists) return null;
+    if (!doc.exists) return null;
 
-    return Contact.fromUserDocument(docRef.id, docRef.data()!);
+    return Contact.fromUserDocument(doc.id, doc.data()!);
+  }
+
+  Future<Contact?> findUserByEmail(String email) async {
+    final query = await _db
+        .collection("users")
+        .where("email", isEqualTo: email)
+        .limit(1)
+        .get();
+
+    if (query.docs.isEmpty) {
+      return null;
+    }
+
+    final doc = query.docs.first;
+
+    return Contact.fromUserDocument(doc.id, doc.data());
+  }
+
+  Future<void> addUserToContacts(String uid) async {
+    state = const AsyncLoading();
+    try {
+      final user = ref.watch(authViewModelProvider).valueOrNull;
+
+      if (user == null) {
+        throw Exception("You are not logged in!");
+      }
+
+      if (user.uid == uid) {
+        throw Exception("You cannot add yourself");
+      }
+
+      // Check if UID exists
+      final doc = await _db.collection("users").doc(uid).get();
+      if (!doc.exists) throw Exception("User uid $uid not found");
+
+      await _db.collection(_collection).doc(user.uid).update({
+        "contacts": FieldValue.arrayUnion([uid]),
+      });
+
+      // refresh contacts
+      ref.invalidateSelf();
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+      rethrow;
+    }
   }
 }

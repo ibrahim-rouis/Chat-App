@@ -34,6 +34,7 @@ class HomePage extends ConsumerWidget {
       ),
       body: Stack(
         children: [
+          /***** Just for decoration ******/
           Positioned(
             right: 0,
             top: 0,
@@ -66,6 +67,7 @@ class HomePage extends ConsumerWidget {
               ),
             ),
           ),
+          /***** Just for decoration ******/
           Positioned(
             left: 0,
             right: 0,
@@ -81,33 +83,54 @@ class HomePage extends ConsumerWidget {
               ),
               child: switch (contacts) {
                 AsyncData(:final value) => _buildBody(context, value),
-                AsyncError(:final error) => Center(
-                  child: Column(
-                    children: [
-                      Text('error: $error'),
-                      ElevatedButton(
-                        onPressed: () => _refresh(ref),
-                        child: const Text("Refresh"),
-                      ),
-                    ],
-                  ),
-                ),
-                _ => const Center(
-                  child: SizedBox(
-                    width: 50,
-                    height: 50,
-                    child: CircularProgressIndicator(),
-                  ),
-                ),
+                AsyncError(:final error) => _buildError(error, contacts, ref),
+                _ => _buildLoading(),
               },
             ),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          context.go("/add_contact");
+        },
         tooltip: "Add new contact",
         child: const Icon(Icons.add),
+      ),
+    );
+  }
+
+  Center _buildLoading() {
+    return const Center(
+      child: SizedBox(
+        width: 50,
+        height: 50,
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+
+  Center _buildError(
+    Object error,
+    AsyncError<List<Contact>> contacts,
+    WidgetRef ref,
+  ) {
+    return Center(
+      child: Column(
+        children: [
+          const SizedBox(height: 15),
+          Text('error: $error'),
+          ElevatedButton(
+            onPressed: contacts.isLoading ? null : () => _refresh(ref),
+            child: contacts.isLoading
+                ? const SizedBox(
+                    height: 25,
+                    width: 25,
+                    child: CircularProgressIndicator(),
+                  )
+                : const Text("Refresh"),
+          ),
+        ],
       ),
     );
   }
@@ -132,6 +155,23 @@ class HomePage extends ConsumerWidget {
   }
 
   Widget _buildContactsListView(List<Contact> contacts) {
+    if (contacts.isEmpty) {
+      return const Column(
+        children: [
+          SizedBox(height: 15),
+          Text("You have no contacts :(", textAlign: TextAlign.center),
+          SizedBox(height: 5),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text("Tap the"),
+              Icon(Icons.add),
+              Text("button to add new contacts"),
+            ],
+          ),
+        ],
+      );
+    }
     return ListView.builder(
       itemBuilder: (context, i) {
         final contact = contacts[i];

@@ -1,6 +1,7 @@
 import 'package:chat_app/features/auth/viewmodels/auth_viewmodel.dart';
 import 'package:chat_app/features/auth/views/sign_in_page.dart';
 import 'package:chat_app/features/auth/views/sign_up_page.dart';
+import 'package:chat_app/features/home/views/add_contact_page.dart';
 import 'package:chat_app/features/home/views/home_page.dart';
 import 'package:chat_app/features/home/views/loading_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,7 +19,12 @@ GoRouter router(Ref ref) {
       GoRoute(
         path: "/",
         builder: (context, state) => const HomePage(),
-        routes: [],
+        routes: [
+          GoRoute(
+            path: "/add_contact",
+            builder: (context, state) => const AddContactPage(),
+          ),
+        ],
         redirect: (context, state) {
           final user = ref.read(authViewModelProvider);
           if (user.isLoading && !user.hasValue) {

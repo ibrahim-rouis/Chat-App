@@ -58,6 +58,10 @@ String parseError(Object e) {
       "wrong-password" => "Incorrect password",
       _ => "Authentication error: ${e.message}",
     };
+  } else if (e is Exception) {
+    final message = e.toString();
+    return message.substring(0, message.length > 100 ? 100 : message.length);
+  } else {
+    return "An unknown error has occurred";
   }
-  return "An unknown error has occurred";
 }
