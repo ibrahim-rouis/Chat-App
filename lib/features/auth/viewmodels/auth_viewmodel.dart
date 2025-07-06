@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:chat_app/features/auth/models/user_model.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -9,6 +10,7 @@ part 'auth_viewmodel.g.dart';
 @riverpod
 class AuthViewModel extends _$AuthViewModel {
   final _auth = FirebaseAuth.instance;
+  final _db = FirebaseFirestore.instance;
 
   @override
   Future<UserModel?> build() async {
@@ -37,7 +39,7 @@ class AuthViewModel extends _$AuthViewModel {
   }
 
   /// Retry loading auth state from Firebase in case of error
-  Future<void> retry() async {
+  void retry() {
     ref.invalidateSelf();
   }
 
@@ -49,6 +51,11 @@ class AuthViewModel extends _$AuthViewModel {
         email: email,
         password: password,
       );
+
+      if (cred.user != null) {
+        await _saveUser(cred.user);
+      }
+
       state = cred.user != null
           ? AsyncData(UserModel.fromUser(cred.user!))
           : const AsyncData(null);
@@ -69,6 +76,11 @@ class AuthViewModel extends _$AuthViewModel {
         email: email,
         password: password,
       );
+
+      if (cred.user != null) {
+        await _saveUser(cred.user);
+      }
+
       state = cred.user != null
           ? AsyncData(UserModel.fromUser(cred.user!))
           : const AsyncData(null);
@@ -91,6 +103,16 @@ class AuthViewModel extends _$AuthViewModel {
 
     if (prevState != null) {
       state = AsyncData(prevState.copyWith(displayName: name));
+    }
+  }
+
+  // Save user info into users collection
+  Future<void> _saveUser(User? user) async {
+    if (user != null) {
+      await _db.collection("users").doc(user.uid).set({
+        "email": user.email!,
+        "displayName": user.displayName ?? user.email!.split("@")[0],
+      });
     }
   }
 
