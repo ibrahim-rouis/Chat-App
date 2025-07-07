@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Contact implements DiagnosticableTreeMixin {
 
- String get uid; String get email; String get displayName;
+ String get uid; String get email; String get displayName; String? get lastMessage; DateTime? get updatedAt;
 /// Create a copy of Contact
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -27,21 +27,21 @@ $ContactCopyWith<Contact> get copyWith => _$ContactCopyWithImpl<Contact>(this as
 void debugFillProperties(DiagnosticPropertiesBuilder properties) {
   properties
     ..add(DiagnosticsProperty('type', 'Contact'))
-    ..add(DiagnosticsProperty('uid', uid))..add(DiagnosticsProperty('email', email))..add(DiagnosticsProperty('displayName', displayName));
+    ..add(DiagnosticsProperty('uid', uid))..add(DiagnosticsProperty('email', email))..add(DiagnosticsProperty('displayName', displayName))..add(DiagnosticsProperty('lastMessage', lastMessage))..add(DiagnosticsProperty('updatedAt', updatedAt));
 }
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Contact&&(identical(other.uid, uid) || other.uid == uid)&&(identical(other.email, email) || other.email == email)&&(identical(other.displayName, displayName) || other.displayName == displayName));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Contact&&(identical(other.uid, uid) || other.uid == uid)&&(identical(other.email, email) || other.email == email)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.lastMessage, lastMessage) || other.lastMessage == lastMessage)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,uid,email,displayName);
+int get hashCode => Object.hash(runtimeType,uid,email,displayName,lastMessage,updatedAt);
 
 @override
 String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
-  return 'Contact(uid: $uid, email: $email, displayName: $displayName)';
+  return 'Contact(uid: $uid, email: $email, displayName: $displayName, lastMessage: $lastMessage, updatedAt: $updatedAt)';
 }
 
 
@@ -52,7 +52,7 @@ abstract mixin class $ContactCopyWith<$Res>  {
   factory $ContactCopyWith(Contact value, $Res Function(Contact) _then) = _$ContactCopyWithImpl;
 @useResult
 $Res call({
- String uid, String email, String displayName
+ String uid, String email, String displayName, String? lastMessage, DateTime? updatedAt
 });
 
 
@@ -69,12 +69,14 @@ class _$ContactCopyWithImpl<$Res>
 
 /// Create a copy of Contact
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? uid = null,Object? email = null,Object? displayName = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? uid = null,Object? email = null,Object? displayName = null,Object? lastMessage = freezed,Object? updatedAt = freezed,}) {
   return _then(_self.copyWith(
 uid: null == uid ? _self.uid : uid // ignore: cast_nullable_to_non_nullable
 as String,email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
 as String,displayName: null == displayName ? _self.displayName : displayName // ignore: cast_nullable_to_non_nullable
-as String,
+as String,lastMessage: freezed == lastMessage ? _self.lastMessage : lastMessage // ignore: cast_nullable_to_non_nullable
+as String?,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,
   ));
 }
 
@@ -85,12 +87,14 @@ as String,
 
 
 class _Contact with DiagnosticableTreeMixin implements Contact {
-  const _Contact({required this.uid, required this.email, required this.displayName});
+  const _Contact({required this.uid, required this.email, required this.displayName, this.lastMessage, this.updatedAt});
   
 
 @override final  String uid;
 @override final  String email;
 @override final  String displayName;
+@override final  String? lastMessage;
+@override final  DateTime? updatedAt;
 
 /// Create a copy of Contact
 /// with the given fields replaced by the non-null parameter values.
@@ -103,21 +107,21 @@ _$ContactCopyWith<_Contact> get copyWith => __$ContactCopyWithImpl<_Contact>(thi
 void debugFillProperties(DiagnosticPropertiesBuilder properties) {
   properties
     ..add(DiagnosticsProperty('type', 'Contact'))
-    ..add(DiagnosticsProperty('uid', uid))..add(DiagnosticsProperty('email', email))..add(DiagnosticsProperty('displayName', displayName));
+    ..add(DiagnosticsProperty('uid', uid))..add(DiagnosticsProperty('email', email))..add(DiagnosticsProperty('displayName', displayName))..add(DiagnosticsProperty('lastMessage', lastMessage))..add(DiagnosticsProperty('updatedAt', updatedAt));
 }
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Contact&&(identical(other.uid, uid) || other.uid == uid)&&(identical(other.email, email) || other.email == email)&&(identical(other.displayName, displayName) || other.displayName == displayName));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Contact&&(identical(other.uid, uid) || other.uid == uid)&&(identical(other.email, email) || other.email == email)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.lastMessage, lastMessage) || other.lastMessage == lastMessage)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,uid,email,displayName);
+int get hashCode => Object.hash(runtimeType,uid,email,displayName,lastMessage,updatedAt);
 
 @override
 String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
-  return 'Contact(uid: $uid, email: $email, displayName: $displayName)';
+  return 'Contact(uid: $uid, email: $email, displayName: $displayName, lastMessage: $lastMessage, updatedAt: $updatedAt)';
 }
 
 
@@ -128,7 +132,7 @@ abstract mixin class _$ContactCopyWith<$Res> implements $ContactCopyWith<$Res> {
   factory _$ContactCopyWith(_Contact value, $Res Function(_Contact) _then) = __$ContactCopyWithImpl;
 @override @useResult
 $Res call({
- String uid, String email, String displayName
+ String uid, String email, String displayName, String? lastMessage, DateTime? updatedAt
 });
 
 
@@ -145,12 +149,14 @@ class __$ContactCopyWithImpl<$Res>
 
 /// Create a copy of Contact
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? uid = null,Object? email = null,Object? displayName = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? uid = null,Object? email = null,Object? displayName = null,Object? lastMessage = freezed,Object? updatedAt = freezed,}) {
   return _then(_Contact(
 uid: null == uid ? _self.uid : uid // ignore: cast_nullable_to_non_nullable
 as String,email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
 as String,displayName: null == displayName ? _self.displayName : displayName // ignore: cast_nullable_to_non_nullable
-as String,
+as String,lastMessage: freezed == lastMessage ? _self.lastMessage : lastMessage // ignore: cast_nullable_to_non_nullable
+as String?,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,
   ));
 }
 

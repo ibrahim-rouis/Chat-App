@@ -1,7 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-
 part 'message.freezed.dart';
 part 'message.g.dart';
 
@@ -10,7 +8,7 @@ abstract class Message with _$Message {
   const factory Message({
     required String senderUID,
     required String content,
-    @TimestampConverter() required DateTime timestamp,
+    @TimestampConverter() DateTime? timestamp,
   }) = _Message;
 
   factory Message.fromJson(Map<String, Object?> json) =>
@@ -28,5 +26,5 @@ class TimestampConverter implements JsonConverter<DateTime, Object?> {
   }
 
   @override
-  Object toJson(DateTime date) => Timestamp.fromDate(date);
+  Object? toJson(DateTime date) => Timestamp.fromDate(date);
 }

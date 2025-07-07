@@ -1,5 +1,7 @@
 import 'package:chat_app/features/auth/viewmodels/auth_viewmodel.dart';
 import 'package:chat_app/features/home/models/message.dart';
+import 'package:chat_app/features/home/viewmodels/contacts_viewmodel.dart';
+import 'package:chat_app/utils/utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -17,7 +19,7 @@ class MessagesViewModel extends _$MessagesViewModel {
 
     if (user == null) return const Stream.empty();
 
-    String uniqueCombinedId = _getUniqueID(user.uid, contactUID);
+    String uniqueCombinedId = getUniqueID(user.uid, contactUID);
 
     return _db
         .collection("messages")
@@ -33,13 +35,6 @@ class MessagesViewModel extends _$MessagesViewModel {
         });
   }
 
-  String _getUniqueID(String userUid, String contactUID) {
-    var uidsList = <String>[userUid, contactUID];
-    uidsList.sort();
-    String uniqueCombinedId = uidsList.join("_");
-    return uniqueCombinedId;
-  }
-
   void refresh() {
     ref.invalidateSelf();
   }
@@ -50,7 +45,7 @@ class MessagesViewModel extends _$MessagesViewModel {
     if (user == null) {
       throw Exception("You are not logged in");
     }
-    String uniqueCombinedId = _getUniqueID(user.uid, contactUID);
+    String uniqueCombinedId = getUniqueID(user.uid, contactUID);
     await _db
         .collection(_collection)
         .doc(uniqueCombinedId)
@@ -66,5 +61,7 @@ class MessagesViewModel extends _$MessagesViewModel {
       "lastSender": user.uid,
       "updatedAt": FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
+
+    ref.invalidate(contactsViewModelProvider);
   }
 }

@@ -1,5 +1,6 @@
 import 'package:chat_app/features/auth/viewmodels/auth_viewmodel.dart';
 import 'package:chat_app/features/home/models/contact.dart';
+import 'package:chat_app/utils/utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -31,7 +32,7 @@ class ContactsViewModel extends _$ContactsViewModel {
     final contactsUIDs = doc.data()!["contacts"];
 
     for (final uid in contactsUIDs) {
-      final contact = await _getContactInfoByUID(uid);
+      final contact = await _getContactInfoByUID(uid, user.uid);
       if (contact != null) contacts.add(contact);
     }
 
@@ -42,12 +43,27 @@ class ContactsViewModel extends _$ContactsViewModel {
     ref.invalidateSelf();
   }
 
-  Future<Contact?> _getContactInfoByUID(String uid) async {
+  Future<Contact?> _getContactInfoByUID(
+    String uid,
+    String currentUserUid,
+  ) async {
     final doc = await _db.collection("users").doc(uid).get();
+    final metaDoc = await _db
+        .collection("messages")
+        .doc(getUniqueID(currentUserUid, uid))
+        .get();
 
     if (!doc.exists) return null;
 
-    return Contact.fromUserDocument(doc.id, doc.data()!);
+    if (metaDoc.exists) {
+      return Contact.fromUserDocumentWithMeta(
+        doc.id,
+        doc.data()!,
+        metaDoc.data()!,
+      );
+    } else {
+      return Contact.fromUserDocument(doc.id, doc.data()!);
+    }
   }
 
   Future<Contact?> _findUserByEmail(String email) async {

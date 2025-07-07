@@ -117,13 +117,25 @@ class HomePage extends ConsumerWidget {
     return ListTile(
       onTap: () => context.go("/messages/${contact.uid}"),
       title: Text(contact.displayName),
-      subtitle: Text(contact.email),
+      subtitle: Text(reduceText(text: contact.lastMessage)),
       leading: SizedBox(
         width: 50,
         height: 50,
         child: UserAvatar(contact: contact),
       ),
     );
+  }
+
+  String reduceText({String? text, int max = 30}) {
+    if (text == null) {
+      return "Start conversation";
+    }
+
+    if (text.length > max) {
+      return "${text.substring(0, max)}...";
+    } else {
+      return text;
+    }
   }
 }
 

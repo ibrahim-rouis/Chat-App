@@ -65,3 +65,10 @@ String parseError(Object e) {
     return "An unknown error has occurred";
   }
 }
+
+String getUniqueID(String userUid, String contactUID) {
+  var uidsList = <String>[userUid, contactUID];
+  uidsList.sort();
+  String uniqueCombinedId = uidsList.join("_");
+  return uniqueCombinedId;
+}

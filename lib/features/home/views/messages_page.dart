@@ -153,26 +153,32 @@ class _MessagingPageState extends ConsumerState<MessagesPage> {
 
   Widget _buildMessage(Message message) {
     final th = Theme.of(context);
+    final isMe = message.senderUID == currentUser?.uid;
     return Row(
       key: ObjectKey(message),
-      mainAxisAlignment: message.senderUID == currentUser?.uid
-          ? MainAxisAlignment.end
-          : MainAxisAlignment.start,
+      mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
       children: [
-        Container(
-          margin: const EdgeInsets.symmetric(vertical: 8),
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-          decoration: BoxDecoration(
-            color: message.senderUID == currentUser?.uid
-                ? th.colorScheme.secondaryContainer
-                : th.colorScheme.primary,
-            borderRadius: const BorderRadius.all(Radius.circular(16)),
-          ),
-          child: Text(
-            message.content,
-            style: message.senderUID == currentUser?.uid
-                ? th.textTheme.bodyLarge
-                : th.primaryTextTheme.bodyLarge,
+        Flexible(
+          child: Container(
+            margin: EdgeInsets.only(
+              top: 8,
+              bottom: 8,
+              left: isMe ? 16 : 0,
+              right: isMe ? 0 : 16,
+            ),
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+            decoration: BoxDecoration(
+              color: isMe
+                  ? th.colorScheme.secondaryContainer
+                  : th.colorScheme.primary,
+              borderRadius: const BorderRadius.all(Radius.circular(16)),
+            ),
+            child: Text(
+              message.content,
+              style: isMe
+                  ? th.textTheme.bodyLarge
+                  : th.primaryTextTheme.bodyLarge,
+            ),
           ),
         ),
       ],
