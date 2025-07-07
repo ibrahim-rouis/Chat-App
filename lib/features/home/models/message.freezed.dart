@@ -16,7 +16,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Message implements DiagnosticableTreeMixin {
 
- String get senderUID; String get content; DateTime get timestamp;
+ String get senderUID; String get content;@TimestampConverter() DateTime get timestamp;
 /// Create a copy of Message
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -55,7 +55,7 @@ abstract mixin class $MessageCopyWith<$Res>  {
   factory $MessageCopyWith(Message value, $Res Function(Message) _then) = _$MessageCopyWithImpl;
 @useResult
 $Res call({
- String senderUID, String content, DateTime timestamp
+ String senderUID, String content,@TimestampConverter() DateTime timestamp
 });
 
 
@@ -88,12 +88,12 @@ as DateTime,
 @JsonSerializable()
 
 class _Message with DiagnosticableTreeMixin implements Message {
-  const _Message({required this.senderUID, required this.content, required this.timestamp});
+  const _Message({required this.senderUID, required this.content, @TimestampConverter() required this.timestamp});
   factory _Message.fromJson(Map<String, dynamic> json) => _$MessageFromJson(json);
 
 @override final  String senderUID;
 @override final  String content;
-@override final  DateTime timestamp;
+@override@TimestampConverter() final  DateTime timestamp;
 
 /// Create a copy of Message
 /// with the given fields replaced by the non-null parameter values.
@@ -134,7 +134,7 @@ abstract mixin class _$MessageCopyWith<$Res> implements $MessageCopyWith<$Res> {
   factory _$MessageCopyWith(_Message value, $Res Function(_Message) _then) = __$MessageCopyWithImpl;
 @override @useResult
 $Res call({
- String senderUID, String content, DateTime timestamp
+ String senderUID, String content,@TimestampConverter() DateTime timestamp
 });
 
 

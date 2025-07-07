@@ -1,5 +1,7 @@
 import 'package:chat_app/components/decorated_body.dart';
-import 'package:chat_app/components/my_app_bar.dart';
+import 'package:chat_app/components/i_text_form_field.dart';
+import 'package:chat_app/features/auth/models/user_model.dart';
+import 'package:chat_app/features/auth/viewmodels/auth_viewmodel.dart';
 import 'package:chat_app/features/home/models/contact.dart';
 import 'package:chat_app/features/home/models/message.dart';
 import 'package:chat_app/features/home/viewmodels/contacts_viewmodel.dart';
@@ -19,6 +21,9 @@ class MessagesPage extends ConsumerStatefulWidget {
 
 class _MessagingPageState extends ConsumerState<MessagesPage> {
   late final Contact? contact;
+  late final UserModel? currentUser;
+  final TextEditingController textEditingController = TextEditingController();
+  final formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -28,6 +33,7 @@ class _MessagingPageState extends ConsumerState<MessagesPage> {
         .valueOrNull
         ?.where((contact) => contact.uid == widget.contactUid)
         .first;
+    currentUser = ref.read(authViewModelProvider).valueOrNull;
   }
 
   @override
@@ -48,7 +54,36 @@ class _MessagingPageState extends ConsumerState<MessagesPage> {
   }
 
   Widget _buildBody() {
-    return Column(children: [Expanded(child: _buildMessages())]);
+    return Column(
+      children: [
+        Expanded(child: _buildMessages()),
+        _buildForm(),
+      ],
+    );
+  }
+
+  Widget _buildForm() {
+    final th = Theme.of(context);
+    return Form(
+      key: formKey,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+        child: Row(
+          children: [
+            Expanded(
+              child: ITextFormField(
+                hintText: "Type a message",
+                controller: textEditingController,
+              ),
+            ),
+            IconButton(
+              onPressed: _sendMessage,
+              icon: Icon(Icons.send, color: th.colorScheme.primary),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildMessages() {
@@ -90,7 +125,7 @@ class _MessagingPageState extends ConsumerState<MessagesPage> {
   }
 
   void _refresh() {
-    // TODO: refresh messages in case of error
+    ref.read(MessagesViewModelProvider(widget.contactUid).notifier).refresh();
     return;
   }
 
@@ -107,10 +142,40 @@ class _MessagingPageState extends ConsumerState<MessagesPage> {
       );
     }
     return ListView.builder(
+      reverse: true,
+      padding: const EdgeInsets.all(16),
       itemBuilder: (context, index) {
-        return Text("index: $index");
+        return _buildMessage(messages[index]);
       },
       itemCount: messages.length,
+    );
+  }
+
+  Widget _buildMessage(Message message) {
+    final th = Theme.of(context);
+    return Row(
+      key: ObjectKey(message),
+      mainAxisAlignment: message.senderUID == currentUser?.uid
+          ? MainAxisAlignment.end
+          : MainAxisAlignment.start,
+      children: [
+        Container(
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+          decoration: BoxDecoration(
+            color: message.senderUID == currentUser?.uid
+                ? th.colorScheme.secondaryContainer
+                : th.colorScheme.primary,
+            borderRadius: const BorderRadius.all(Radius.circular(16)),
+          ),
+          child: Text(
+            message.content,
+            style: message.senderUID == currentUser?.uid
+                ? th.textTheme.bodyLarge
+                : th.primaryTextTheme.bodyLarge,
+          ),
+        ),
+      ],
     );
   }
 
@@ -130,5 +195,18 @@ class _MessagingPageState extends ConsumerState<MessagesPage> {
         ),
       ],
     );
+  }
+
+  void _sendMessage() {
+    final message = textEditingController.text;
+
+    if (message.isNotEmpty) {
+      ref
+          .read(messagesViewModelProvider(widget.contactUid).notifier)
+          .sendMessageTo(widget.contactUid, message)
+          .whenComplete(() {
+            textEditingController.clear();
+          });
+    }
   }
 }

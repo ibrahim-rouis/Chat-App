@@ -69,7 +69,7 @@ class ContactsViewModel extends _$ContactsViewModel {
   Future<void> addUserToContacts(String email) async {
     state = const AsyncLoading();
     try {
-      final user = ref.watch(authViewModelProvider).valueOrNull;
+      final user = ref.read(authViewModelProvider).valueOrNull;
 
       if (user == null) {
         throw Exception("You are not logged in!");

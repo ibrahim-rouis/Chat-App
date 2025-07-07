@@ -6,7 +6,7 @@ part of 'messages_viewmodel.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$messagesViewModelHash() => r'54d3dcb5a29d2c4b491d61a015594400c71f4877';
+String _$messagesViewModelHash() => r'7c84296434b3cfd22975500945e863b6c458f694';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -30,10 +30,10 @@ class _SystemHash {
 }
 
 abstract class _$MessagesViewModel
-    extends BuildlessAutoDisposeAsyncNotifier<List<Message>> {
+    extends BuildlessAutoDisposeStreamNotifier<List<Message>> {
   late final String contactUID;
 
-  FutureOr<List<Message>> build(String contactUID);
+  Stream<List<Message>> build(String contactUID);
 }
 
 /// See also [MessagesViewModel].
@@ -75,7 +75,10 @@ class MessagesViewModelFamily extends Family<AsyncValue<List<Message>>> {
 /// See also [MessagesViewModel].
 class MessagesViewModelProvider
     extends
-        AutoDisposeAsyncNotifierProviderImpl<MessagesViewModel, List<Message>> {
+        AutoDisposeStreamNotifierProviderImpl<
+          MessagesViewModel,
+          List<Message>
+        > {
   /// See also [MessagesViewModel].
   MessagesViewModelProvider(String contactUID)
     : this._internal(
@@ -104,9 +107,7 @@ class MessagesViewModelProvider
   final String contactUID;
 
   @override
-  FutureOr<List<Message>> runNotifierBuild(
-    covariant MessagesViewModel notifier,
-  ) {
+  Stream<List<Message>> runNotifierBuild(covariant MessagesViewModel notifier) {
     return notifier.build(contactUID);
   }
 
@@ -127,7 +128,7 @@ class MessagesViewModelProvider
   }
 
   @override
-  AutoDisposeAsyncNotifierProviderElement<MessagesViewModel, List<Message>>
+  AutoDisposeStreamNotifierProviderElement<MessagesViewModel, List<Message>>
   createElement() {
     return _MessagesViewModelProviderElement(this);
   }
@@ -149,14 +150,14 @@ class MessagesViewModelProvider
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 mixin MessagesViewModelRef
-    on AutoDisposeAsyncNotifierProviderRef<List<Message>> {
+    on AutoDisposeStreamNotifierProviderRef<List<Message>> {
   /// The parameter `contactUID` of this provider.
   String get contactUID;
 }
 
 class _MessagesViewModelProviderElement
     extends
-        AutoDisposeAsyncNotifierProviderElement<
+        AutoDisposeStreamNotifierProviderElement<
           MessagesViewModel,
           List<Message>
         >

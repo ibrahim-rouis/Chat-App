@@ -9,11 +9,11 @@ part of 'message.dart';
 _Message _$MessageFromJson(Map<String, dynamic> json) => _Message(
   senderUID: json['senderUID'] as String,
   content: json['content'] as String,
-  timestamp: DateTime.parse(json['timestamp'] as String),
+  timestamp: const TimestampConverter().fromJson(json['timestamp']),
 );
 
 Map<String, dynamic> _$MessageToJson(_Message instance) => <String, dynamic>{
   'senderUID': instance.senderUID,
   'content': instance.content,
-  'timestamp': instance.timestamp.toIso8601String(),
+  'timestamp': const TimestampConverter().toJson(instance.timestamp),
 };

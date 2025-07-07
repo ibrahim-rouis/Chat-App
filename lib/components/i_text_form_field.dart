@@ -6,11 +6,13 @@ class ITextFormField extends StatelessWidget {
     this.controller,
     this.obscure = false,
     this.validator,
+    this.hintText,
   });
 
   final TextEditingController? controller;
   final bool obscure;
   final String? Function(String?)? validator;
+  final String? hintText;
 
   @override
   Widget build(BuildContext context) {
@@ -20,6 +22,7 @@ class ITextFormField extends StatelessWidget {
       decoration: InputDecoration(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(32)),
+        hintText: hintText,
       ),
       validator: validator,
     );

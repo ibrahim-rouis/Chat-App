@@ -6,7 +6,7 @@ part of 'contacts_viewmodel.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$contactsViewModelHash() => r'22abffad8419261612b6a8729ca777a92afdac3f';
+String _$contactsViewModelHash() => r'47ae6ad749201a16b685583bede24da68782b1a4';
 
 /// See also [ContactsViewModel].
 @ProviderFor(ContactsViewModel)
