@@ -4,6 +4,7 @@ import 'package:chat_app/features/auth/views/sign_up_page.dart';
 import 'package:chat_app/features/home/views/add_contact_page.dart';
 import 'package:chat_app/features/home/views/home_page.dart';
 import 'package:chat_app/features/home/views/loading_page.dart';
+import 'package:chat_app/features/home/views/messages_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:go_router/go_router.dart';
@@ -23,6 +24,11 @@ GoRouter router(Ref ref) {
           GoRoute(
             path: "/add_contact",
             builder: (context, state) => const AddContactPage(),
+          ),
+          GoRoute(
+            path: "/messages/:contactUid",
+            builder: (context, state) =>
+                MessagesPage(contactUid: state.pathParameters["contactUid"]!),
           ),
         ],
         redirect: (context, state) {

@@ -1,6 +1,5 @@
 import 'package:chat_app/components/decorated_body.dart';
 import 'package:chat_app/components/my_app_bar.dart';
-import 'package:chat_app/features/auth/viewmodels/auth_viewmodel.dart';
 import 'package:chat_app/features/home/models/contact.dart';
 import 'package:chat_app/features/home/viewmodels/contacts_viewmodel.dart';
 import 'package:flutter/material.dart';
@@ -12,8 +11,6 @@ class HomePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final th = Theme.of(context);
-
     final contacts = ref.watch(contactsViewModelProvider);
 
     return Scaffold(
@@ -80,7 +77,7 @@ class HomePage extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
           child: Text("Contacts", style: th.textTheme.titleMedium),
         ),
-        Expanded(child: _buildContactsListView(contacts)),
+        Expanded(child: _buildContactsListView(context, contacts)),
       ],
     );
   }
@@ -89,7 +86,7 @@ class HomePage extends ConsumerWidget {
     ref.read(contactsViewModelProvider.notifier).refresh();
   }
 
-  Widget _buildContactsListView(List<Contact> contacts) {
+  Widget _buildContactsListView(BuildContext context, List<Contact> contacts) {
     if (contacts.isEmpty) {
       return const Column(
         children: [
@@ -110,19 +107,35 @@ class HomePage extends ConsumerWidget {
     return ListView.builder(
       itemBuilder: (context, i) {
         final contact = contacts[i];
-        return ListTile(
-          title: Text(contact.displayName),
-          subtitle: Text(contact.email),
-          leading: SizedBox(
-            width: 50,
-            height: 50,
-            child: CircleAvatar(
-              child: Center(child: Text(contact.displayName[0].toUpperCase())),
-            ),
-          ),
-        );
+        return _buildListTile(context, contact);
       },
       itemCount: contacts.length,
+    );
+  }
+
+  ListTile _buildListTile(BuildContext context, Contact contact) {
+    return ListTile(
+      onTap: () => context.go("/messages/${contact.uid}"),
+      title: Text(contact.displayName),
+      subtitle: Text(contact.email),
+      leading: SizedBox(
+        width: 50,
+        height: 50,
+        child: UserAvatar(contact: contact),
+      ),
+    );
+  }
+}
+
+class UserAvatar extends StatelessWidget {
+  const UserAvatar({super.key, required this.contact});
+
+  final Contact contact;
+
+  @override
+  Widget build(BuildContext context) {
+    return CircleAvatar(
+      child: Center(child: Text(contact.displayName[0].toUpperCase())),
     );
   }
 }
