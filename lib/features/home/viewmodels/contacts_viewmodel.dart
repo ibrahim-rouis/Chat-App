@@ -27,7 +27,7 @@ class ContactsViewModel extends _$ContactsViewModel {
       return contacts;
     }
 
-    // every document in contacts collection has id of owner uid and a 'contacts' field with a list of contacts uids
+    // every document in contacts collection has id of owner's uid and a 'contacts' field with a list of contacts uids
     final contactsUIDs = doc.data()!["contacts"];
 
     for (final uid in contactsUIDs) {
@@ -50,7 +50,7 @@ class ContactsViewModel extends _$ContactsViewModel {
     return Contact.fromUserDocument(doc.id, doc.data()!);
   }
 
-  Future<Contact?> findUserByEmail(String email) async {
+  Future<Contact?> _findUserByEmail(String email) async {
     final query = await _db
         .collection("users")
         .where("email", isEqualTo: email)
@@ -66,7 +66,7 @@ class ContactsViewModel extends _$ContactsViewModel {
     return Contact.fromUserDocument(doc.id, doc.data());
   }
 
-  Future<void> addUserToContacts(String uid) async {
+  Future<void> addUserToContacts(String email) async {
     state = const AsyncLoading();
     try {
       final user = ref.watch(authViewModelProvider).valueOrNull;
@@ -75,16 +75,26 @@ class ContactsViewModel extends _$ContactsViewModel {
         throw Exception("You are not logged in!");
       }
 
-      if (user.uid == uid) {
+      final newContact = await _findUserByEmail(email);
+
+      if (newContact == null) {
+        throw Exception("Contact with given email not found");
+      }
+
+      if (user.uid == newContact.uid) {
         throw Exception("You cannot add yourself");
       }
 
       // Check if UID exists
-      final doc = await _db.collection("users").doc(uid).get();
-      if (!doc.exists) throw Exception("User uid $uid not found");
+      final doc = await _db.collection("users").doc(newContact.uid).get();
+      if (!doc.exists) {
+        throw Exception(
+          "User uid ${newContact.uid} not found in users collection",
+        );
+      }
 
       await _db.collection(_collection).doc(user.uid).update({
-        "contacts": FieldValue.arrayUnion([uid]),
+        "contacts": FieldValue.arrayUnion([newContact.uid]),
       });
 
       // refresh contacts
