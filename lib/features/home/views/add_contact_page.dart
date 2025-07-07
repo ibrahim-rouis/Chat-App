@@ -71,6 +71,12 @@ class _AddContactPageState extends ConsumerState<AddContactPage> {
         final contacts = ref.read(contactsViewModelProvider.notifier);
         final email = textEditingController.text;
         await contacts.addUserToContacts(email);
+        textEditingController.clear();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Email added to contacts")),
+          );
+        }
       } catch (e) {
         debugPrint("Error: $e");
       }

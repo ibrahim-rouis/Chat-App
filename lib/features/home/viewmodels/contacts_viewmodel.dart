@@ -36,6 +36,15 @@ class ContactsViewModel extends _$ContactsViewModel {
       if (contact != null) contacts.add(contact);
     }
 
+    // null first sort
+    contacts.sort(
+      (a, b) => a.updatedAt == null
+          ? 1
+          : b.updatedAt == null
+          ? -1
+          : a.updatedAt!.compareTo(b.updatedAt!),
+    );
+
     return contacts;
   }
 
@@ -111,6 +120,19 @@ class ContactsViewModel extends _$ContactsViewModel {
 
       await _db.collection(_collection).doc(user.uid).update({
         "contacts": FieldValue.arrayUnion([newContact.uid]),
+      });
+
+      final otherDoc = await _db
+          .collection(_collection)
+          .doc(newContact.uid)
+          .get();
+      if (!otherDoc.exists) {
+        await _db.collection(_collection).doc(newContact.uid).set({
+          "contacts": [],
+        });
+      }
+      await _db.collection(_collection).doc(newContact.uid).update({
+        "contacts": FieldValue.arrayUnion([user.uid]),
       });
 
       // refresh contacts

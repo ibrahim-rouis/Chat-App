@@ -6,11 +6,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class HomePage extends ConsumerWidget {
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends ConsumerState<HomePage> {
+  @override
+  Widget build(BuildContext context) {
     final contacts = ref.watch(contactsViewModelProvider);
 
     return Scaffold(
@@ -18,7 +23,7 @@ class HomePage extends ConsumerWidget {
       body: DecoratedBody(
         child: switch (contacts) {
           AsyncData(:final value) => _buildBody(context, value),
-          AsyncError(:final error) => _buildError(error, contacts, ref),
+          AsyncError(:final error) => _buildError(error),
           _ => _buildLoading(),
         },
       ),
@@ -42,18 +47,15 @@ class HomePage extends ConsumerWidget {
     );
   }
 
-  Center _buildError(
-    Object error,
-    AsyncError<List<Contact>> contacts,
-    WidgetRef ref,
-  ) {
+  Center _buildError(Object error) {
+    final contacts = ref.watch(contactsViewModelProvider);
     return Center(
       child: Column(
         children: [
           const SizedBox(height: 15),
           Text('error: $error'),
           ElevatedButton(
-            onPressed: contacts.isLoading ? null : () => _refresh(ref),
+            onPressed: contacts.isLoading ? null : _refresh,
             child: contacts.isLoading
                 ? const SizedBox(
                     height: 25,
@@ -77,43 +79,51 @@ class HomePage extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
           child: Text("Contacts", style: th.textTheme.titleMedium),
         ),
-        Expanded(child: _buildContactsListView(context, contacts)),
+        Expanded(child: _buildContactsListView(contacts)),
       ],
     );
   }
 
-  void _refresh(WidgetRef ref) {
+  Future<void> _refresh() async {
     ref.read(contactsViewModelProvider.notifier).refresh();
   }
 
-  Widget _buildContactsListView(BuildContext context, List<Contact> contacts) {
-    if (contacts.isEmpty) {
-      return const Column(
-        children: [
-          SizedBox(height: 15),
-          Text("You have no contacts :(", textAlign: TextAlign.center),
-          SizedBox(height: 5),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text("Tap the"),
-              Icon(Icons.add),
-              Text("button to add new contacts"),
-            ],
-          ),
-        ],
-      );
-    }
-    return ListView.builder(
-      itemBuilder: (context, i) {
-        final contact = contacts[i];
-        return _buildListTile(context, contact);
-      },
-      itemCount: contacts.length,
+  Widget _buildContactsListView(List<Contact> contacts) {
+    return RefreshIndicator(
+      onRefresh: _refresh,
+      child: contacts.isEmpty
+          ? _buildNoContacts()
+          : ListView.builder(
+              itemBuilder: (context, i) {
+                final contact = contacts[i];
+                return _buildListTile(contact);
+              },
+              itemCount: contacts.length,
+            ),
     );
   }
 
-  ListTile _buildListTile(BuildContext context, Contact contact) {
+  ListView _buildNoContacts() {
+    return ListView(
+      children: const [
+        SizedBox(height: 15),
+        Text("You have no contacts :(", textAlign: TextAlign.center),
+        SizedBox(height: 5),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text("Tap the"),
+            Icon(Icons.add),
+            Text("button to add new contacts"),
+          ],
+        ),
+        SizedBox(height: 5),
+        Text("Swipe down to refresh.", textAlign: TextAlign.center),
+      ],
+    );
+  }
+
+  ListTile _buildListTile(Contact contact) {
     return ListTile(
       onTap: () => context.go("/messages/${contact.uid}"),
       title: Text(contact.displayName),
