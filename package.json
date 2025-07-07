@@ -5,7 +5,8 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "start": "concurrently 'firebase emulators:start --project demo-dev --export-on-exit=./emulators_data --import=./emulators_data' 'dart run build_runner watch -d'"
+    "dev": "concurrently 'firebase emulators:start --project demo-dev --export-on-exit=./emulators_data --import=./emulators_data' 'dart run build_runner watch -d'",
+    "start": "firebase emulators:start --project demo-dev --export-on-exit=./emulators_data --import=./emulators_data"
   },
   "devDependencies": {
     "concurrently": "^9.2.0"
