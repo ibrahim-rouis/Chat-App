@@ -7,7 +7,7 @@ A simple Chat application build with Flutter and Firebase
 
 ## Features
 
-- [x] Athentication
+- [x] Authentication
 - [x] Contacts
 - [x] Private messaging
 - [x] Realtime chat
