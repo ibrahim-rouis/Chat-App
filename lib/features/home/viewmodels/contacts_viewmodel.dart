@@ -39,10 +39,10 @@ class ContactsViewModel extends _$ContactsViewModel {
     // null first sort
     contacts.sort(
       (a, b) => a.updatedAt == null
-          ? 1
-          : b.updatedAt == null
           ? -1
-          : a.updatedAt!.compareTo(b.updatedAt!),
+          : b.updatedAt == null
+          ? 1
+          : -(a.updatedAt!.compareTo(b.updatedAt!)),
     );
 
     return contacts;
