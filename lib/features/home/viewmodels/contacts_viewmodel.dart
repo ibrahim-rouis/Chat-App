@@ -110,30 +110,30 @@ class ContactsViewModel extends _$ContactsViewModel {
         throw Exception("You cannot add yourself");
       }
 
-      // Check if UID exists
-      final doc = await _db.collection("users").doc(newContact.uid).get();
-      if (!doc.exists) {
-        throw Exception(
-          "User uid ${newContact.uid} not found in users collection",
-        );
-      }
+      // // Check if UID exists
+      // final doc = await _db.collection("users").doc(newContact.uid).get();
+      // if (!doc.exists) {
+      //   throw Exception(
+      //     "User uid ${newContact.uid} not found in users collection",
+      //   );
+      // }
 
       await _db.collection(_collection).doc(user.uid).update({
         "contacts": FieldValue.arrayUnion([newContact.uid]),
       });
-
-      final otherDoc = await _db
-          .collection(_collection)
-          .doc(newContact.uid)
-          .get();
-      if (!otherDoc.exists) {
-        await _db.collection(_collection).doc(newContact.uid).set({
-          "contacts": [],
-        });
-      }
       await _db.collection(_collection).doc(newContact.uid).update({
         "contacts": FieldValue.arrayUnion([user.uid]),
       });
+
+      // final otherDoc = await _db
+      //     .collection(_collection)
+      //     .doc(newContact.uid)
+      //     .get();
+      // if (!otherDoc.exists) {
+      //   await _db.collection(_collection).doc(newContact.uid).set({
+      //     "contacts": [],
+      //   });
+      // }
 
       // refresh contacts
       ref.invalidateSelf();

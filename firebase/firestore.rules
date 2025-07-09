@@ -2,8 +2,49 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
+    function isDocumentOwner(auth, docId) {
+      return auth.uid == docId;
+    }
+
+    function isAppendingOwnUIDOnly(auth, oldContactsList, newContactsList) {
+      return !oldContactsList.hasAny([auth.uid]) &&
+              newContactsList.hasAll(oldContactsList) &&
+              newContactsList.hasAny([auth.uid]) &&
+              newContactsList.size() == oldContactsList.size() + 1;
+    }
+
+    // Allow user to read his own document
+    // Allow user to update his displayName but never allow user to change email  
+    // Allow any authenticated user to get any document by ID
+    // Allow any authenticated to search only for single user
+    match /users/{userId} {
+      allow create, update: if isDocumentOwner(request.auth, userId) &&
+                    request.resource.data.keys().hasAll(["email", "displayName"]) &&
+                    request.auth.token.email == request.resource.data.email;
+      allow get: if request.auth != null;
+      allow list: if request.auth != null &&
+                    request.query != null && 
+                    request.query.limit <= 1;
+      allow delete: if false;
+    }
+
+    // Allow user to react his own contacts
+    // Allow only user to create his initial contacts document
+    // Allow user to update his contacts list or allow any other user to add himself to the user's contacts list
+    match /contacts/{contactId} {
+      allow read: if isDocumentOwner(request.auth, contactId);
+      allow create: if isDocumentOwner(request.auth, contactId);
+      allow update: if isDocumentOwner(request.auth, contactId) || 
+                    (request.auth != null && 
+                    request.resource.data.keys().hasOnly(['contacts']) &&
+                    isAppendingOwnUIDOnly(request.auth, resource.data.contacts, request.resource.data.contacts));
+      allow delete: if false;
+    }
+    match /messages/{messagesId} {
       allow read, write: if true;
+    }
+    match /messages/{messagesId}/messages/{messageId} {
+        allow read, write: if true;
     }
   }
 }
