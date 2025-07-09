@@ -15,13 +15,5 @@ _Message _$MessageFromJson(Map<String, dynamic> json) => _Message(
 Map<String, dynamic> _$MessageToJson(_Message instance) => <String, dynamic>{
   'senderUID': instance.senderUID,
   'content': instance.content,
-  'timestamp': _$JsonConverterToJson<Object?, DateTime>(
-    instance.timestamp,
-    const TimestampConverter().toJson,
-  ),
+  'timestamp': const TimestampConverter().toJson(instance.timestamp),
 };
-
-Json? _$JsonConverterToJson<Json, Value>(
-  Value? value,
-  Json? Function(Value value) toJson,
-) => value == null ? null : toJson(value);

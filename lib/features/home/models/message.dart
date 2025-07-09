@@ -15,16 +15,17 @@ abstract class Message with _$Message {
       _$MessageFromJson(json);
 }
 
-class TimestampConverter implements JsonConverter<DateTime, Object?> {
+class TimestampConverter implements JsonConverter<DateTime?, Object?> {
   const TimestampConverter();
 
   @override
-  DateTime fromJson(Object? json) {
+  DateTime? fromJson(Object? json) {
     if (json is Timestamp) return json.toDate();
     if (json is DateTime) return json;
-    throw Exception("Invalid timestamp: $json");
+    return null;
   }
 
   @override
-  Object? toJson(DateTime date) => Timestamp.fromDate(date);
+  Object? toJson(DateTime? date) =>
+      date != null ? Timestamp.fromDate(date) : null;
 }
